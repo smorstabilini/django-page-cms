@@ -112,6 +112,11 @@ def pages_view(view):
             response = details(request, path=path, lang=lang,
                 only_context=True, delegation=False)
             context = response
+            if not type({}) == type(context):
+                # context is a HttpResponseRedirect obj, return it
+                # TODO: check this!!!
+                return context
+
             extra_context_var = kwargs.pop('extra_context_var', None)
             if extra_context_var:
                 kwargs.update({extra_context_var: context})

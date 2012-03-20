@@ -38,7 +38,7 @@ class PageAdmin(admin.ModelAdmin):
     # these mandatory fields are not versioned
     mandatory_placeholders = ('title', 'slug')
     general_fields = ['title', 'slug', 'status', 'target',
-        'position', 'freeze_date']
+        'position', 'freeze_date', 'permission', 'only_authenticated_users']
 
     if settings.PAGE_USE_SITE_ID and not settings.PAGE_HIDE_SITES:
         general_fields.append('sites')

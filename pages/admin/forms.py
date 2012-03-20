@@ -3,6 +3,7 @@
 from django import forms
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Permission
 
 from pages import settings
 from pages.models import Page, Content
@@ -56,11 +57,29 @@ it must be unique among the other pages of the same level.')
         #widget=widgets.AdminTimeWidget()
     )
 
+    only_authenticated_users = forms.BooleanField(
+        required=False,
+        help_text = 'If ticked, only authenticated users can access this page'
+    )
+
+    permission = forms.ModelChoiceField(
+        required=False,
+        label=_('Permission'),
+        help_text=_("Permission needed by a user to access this page'"),
+        queryset=Permission.objects.all()
+    )
+
     target = forms.IntegerField(required=False, widget=forms.HiddenInput)
     position = forms.CharField(required=False, widget=forms.HiddenInput)
 
     class Meta:
         model = Page
+
+    def __init__(self, *args, **kwargs):
+        super(PageForm, self).__init__(*args, **kwargs)
+        base = [('', 'no permission'),] # (-1, 'authenticated users')]
+        others = [(p.id, p.name) for p in Permission.objects.all()]
+        self.fields['permission'].choices = tuple(base + others)
 
     def clean_slug(self):
         """Handle move action on the pages"""

@@ -7,7 +7,7 @@ from pages import settings
 
 from datetime import datetime
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.core.cache import cache
@@ -98,6 +98,13 @@ class Page(MPTTModel):
 
     redirect_to = models.ForeignKey('self', null=True, blank=True,
             related_name='redirected_pages')
+
+    only_authenticated_users = models.BooleanField(default=False, help_text='''If
+        True only authenticated users can access this page''')
+
+    permission = models.ForeignKey(Permission, related_name='accessible_pages',
+            null=True, blank=True, help_text=_('''Permission needed to access the
+            page'''))
 
     # Managers
     objects = PageManager()

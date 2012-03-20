@@ -118,4 +118,24 @@ $(function() {
     $('.js-confirm-delete').click(function() {
         return confirm(gettext('Are you sure you want to delete this content?'));
     });
+
+    var only_authenticated_users = $('#id_only_authenticated_users');
+    var permission = $("#id_permission");
+
+    // when the 'only authenticated users' checkbox is unchecked, the only valid value for
+    // the permission field is 'no permission'
+    only_authenticated_users.change(function(){
+        var checked = $(this).attr('checked');
+        if (!checked) {
+            permission[0].selectedIndex = 0;
+        }
+    });
+
+    // when a permission is selected, the 'only authenticated users' checkbox has
+    // to be ticked
+    permission.change(function(){
+        if ($(this).val() != "") {
+            only_authenticated_users.attr('checked', true);
+        }
+    });
 });

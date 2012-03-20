@@ -5,6 +5,7 @@ from pages.http import auto_render, get_language_from_request, remove_slug
 from pages.urlconf_registry import get_urlconf
 
 from django.http import Http404, HttpResponsePermanentRedirect
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils import translation
@@ -80,9 +81,22 @@ class Details(object):
             if answer:
                 return answer
 
+        permission = current_page.permission
+        user = request.user
+        if permission:
+            if not user.is_authenticated() or not user.has_perm(u"%s.%s" %
+                    (permission.content_type.app_label, permission.codename)):
+                path = current_page.get_url_path()
+                return redirect_to_login(path)
+        elif current_page.only_authenticated_users and not \
+                user.is_authenticated():
+            path = current_page.get_url_path()
+            return redirect_to_login(path)
+
         # do what the auto_render was used to do.
         if kwargs.get('only_context', False):
             return context
+
         template_name = kwargs.get('template_name', template_name)
         response = render_to_response(template_name,
             RequestContext(request, context))
